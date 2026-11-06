@@ -17,7 +17,7 @@
       vr-mode-ui="enabled: false"
       renderer="logarithmicDepthBuffer: true"
       embedded
-      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+      arjs="trackingMethod: best; sourceType: webcam; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;"
     >
       <a-nft
         type="nft"
@@ -64,7 +64,7 @@
         ></a-entity>
       </a-nft>
 
-      <a-entity camera></a-entity>
+      <a-entity camera="fov: 80"></a-entity>
     </a-scene>
   </body>
 </html>
