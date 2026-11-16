@@ -20,9 +20,9 @@
         background: rgba(0, 0, 0, 0.8);
         color: white;
       }
-      #arjs-video {
-        object-fit: contain !important;
-    }
+      body {
+        background: #000;
+      }
     </style>
   </head>
   <body style="margin: 0; overflow: hidden;">
@@ -84,6 +84,47 @@
       window.addEventListener("arjs-nft-loaded", function () {
         document.querySelector(".arjs-loader").style.display = "none";
       });
+
+      // AR.js étire la vidéo pour COUVRIR l'écran (recadrage = "zoom" en portrait).
+      // On recalcule une taille "contain" et on l'applique à la vidéo ET au canvas 3D,
+      // pour que le modèle reste aligné sur l'image suivie.
+      function fitContain() {
+        var video = document.getElementById("arjs-video");
+        var canvas = document.querySelector(".a-canvas");
+        if (!video || !canvas || !video.videoWidth) return;
+
+        var vw = video.videoWidth, vh = video.videoHeight;
+        var sw = window.innerWidth, sh = window.innerHeight;
+        var scale = Math.min(sw / vw, sh / vh);
+        var w = vw * scale, h = vh * scale;
+
+        [video, canvas].forEach(function (el) {
+          el.style.width = w + "px";
+          el.style.height = h + "px";
+          el.style.marginLeft = (sw - w) / 2 + "px";
+          el.style.marginTop = (sh - h) / 2 + "px";
+        });
+      }
+
+      // AR.js redimensionne lui-même sur "resize" : on passe juste après lui.
+      function fitLater() {
+        setTimeout(fitContain, 50);
+        setTimeout(fitContain, 300);
+      }
+      window.addEventListener("resize", fitLater);
+      window.addEventListener("orientationchange", fitLater);
+      window.addEventListener("arjs-video-loaded", fitLater);
+      document.addEventListener("DOMContentLoaded", function () {
+        var video = document.getElementById("arjs-video");
+        if (video) video.addEventListener("loadedmetadata", fitLater);
+      });
+      // filet de sécurité : la vidéo est créée dynamiquement par AR.js
+      var tries = 0;
+      var poll = setInterval(function () {
+        var video = document.getElementById("arjs-video");
+        if (video && video.videoWidth) { fitLater(); clearInterval(poll); }
+        if (++tries > 40) clearInterval(poll);
+      }, 250);
     </script>
   </body>
 </html>
